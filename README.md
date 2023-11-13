@@ -10,19 +10,12 @@ The project uses [Volta](https://volta.sh/) to manage node and yarn version mana
 yarn install
 ```
 
-## Running
-
-To run the server in development mode:
-
-```bash
-yarn start:dev
-```
+## Build
 
 Alternatively, if you want to build and run:
 
 ```bash
 yarn build
-yarn start
 ```
 
 ## Testing
@@ -64,8 +57,8 @@ Copyright © 2022 Klarna Bank AB
 
 For license details, see the [LICENSE](LICENSE) file in the root of this project.
 
-
 <!-- Markdown link & img dfn's -->
+
 [ci-image]: https://img.shields.io/badge/build-passing-brightgreen?style=flat-square
 [ci-url]: https://github.com/klarna-incubator/TODO
 [license-image]: https://img.shields.io/badge/license-Apache%202-blue?style=flat-square
