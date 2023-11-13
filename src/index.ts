@@ -1,0 +1,1 @@
+export { compareWithLabeled } from './compareWithLabeled'

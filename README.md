@@ -1,46 +1,53 @@
-# Project Name
-> Short blurb about what your project does.
+# APS Evaluator
 
-[![Build Status][ci-image]][ci-url]
-[![License][license-image]][license-url]
-[![Developed at Klarna][klarna-image]][klarna-url]
+APS is an acronym for Accurately Parsed Score and aims to provide a unified standard for comparing parsing results and ground truths between Klarna and Nylas.
 
+## Installation
 
-One to two paragraph statement about your project and what it does.
+The project uses [Volta](https://volta.sh/) to manage node and yarn version management. Once you have volta installed you can run the following command to install dependencies:
 
-## First steps
+```shell
+yarn install
+```
 
-<details>
- <summary>Installation (for Admins)</summary>
-  
-  Currently, new repositories can be created only by a Klarna Open Source community lead. Please reach out to us if you need assistance.
-  
-  1. Create a new repository by clicking ‘Use this template’ button.
-  
-  2. Make sure your newly created repository is private.
-  
-  3. Enable Dependabot alerts in your candidate repo settings under Security & analysis. You need to enable ‘Allow GitHub to perform read-only analysis of this repository’ first.
-</details>
+## Running
 
-1. Update `README.md` and `CHANGELOG.md`.
+To run the server in development mode:
 
-2. Optionally, clone [the default contributing guide](https://github.com/klarna-incubator/.github/blob/main/CONTRIBUTING.md) into `.github/CONTRIBUTING.md`.
+```bash
+yarn start:dev
+```
 
-3. Do *not* edit `LICENSE`.
+Alternatively, if you want to build and run:
 
-## Usage example
+```bash
+yarn build
+yarn start
+```
 
-A few motivating and useful examples of how your project can be used. Spice this up with code blocks and potentially more screenshots.
+## Testing
 
-_For more examples and usage, please refer to the [Docs](TODO)._
+```bash
+yarn test
+```
 
-## Development setup
+During development it can be helpful to run the tests automatically whenever a file is changed.
+You can do this by appending the `--watch` flag.
 
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
+```bash
+yarn test --watch
+```
 
-```sh
-make install
-npm test
+## Linting
+
+```bash
+yarn lint
+```
+
+If you also want to fix any found linting errors:
+
+```bash
+yarn lint --fix
 ```
 
 ## How to contribute
