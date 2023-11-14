@@ -6,7 +6,9 @@ APS is an acronym for Accurately Parsed Score and aims to provide a unified stan
 
 Check the basic [example](test/index.ts)
 
-## Installation
+## Development
+
+### Installation
 
 The project uses [Volta](https://volta.sh/) to manage node and yarn version management. Once you have volta installed you can run the following command to install dependencies:
 
@@ -14,7 +16,7 @@ The project uses [Volta](https://volta.sh/) to manage node and yarn version mana
 yarn install
 ```
 
-## Build
+### Build
 
 Alternatively, if you want to build and run:
 
@@ -22,7 +24,7 @@ Alternatively, if you want to build and run:
 yarn build
 ```
 
-## Testing
+### Testing
 
 ```bash
 yarn test
@@ -35,7 +37,7 @@ You can do this by appending the `--watch` flag.
 yarn test --watch
 ```
 
-## Linting
+### Linting
 
 ```bash
 yarn lint
