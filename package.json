@@ -5,6 +5,10 @@
   "types": "dist/index.d.ts",
   "author": "Rickard Bergeling <rickard.bergeling@klarna.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/klarna-incubator/aps-evaluator.git"
+  },
   "scripts": {
     "build": "rimraf dist && tsc -p ./tsconfig.build.json",
     "lint": "eslint \"./src/**/*.{js,ts}\"",
