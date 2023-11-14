@@ -2,6 +2,10 @@
 
 APS is an acronym for Accurately Parsed Score and aims to provide a unified standard for comparing parsing results and ground truths between Klarna and Nylas.
 
+## Usage
+
+Check the basic [example](test/index.ts)
+
 ## Installation
 
 The project uses [Volta](https://volta.sh/) to manage node and yarn version management. Once you have volta installed you can run the following command to install dependencies:

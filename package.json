@@ -15,7 +15,8 @@
     "lint:fix": "yarn lint --fix",
     "start:dev": "NODE_ENV=development nodemon --exec ts-node --files src/index.ts",
     "start": "node dist/index.js",
-    "test": "jest"
+    "test": "jest",
+    "test:package": "ts-node ./test/index.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.7",
