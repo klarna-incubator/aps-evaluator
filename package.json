@@ -1,5 +1,5 @@
 {
-  "name": "aps-evaluator",
+  "name": "@klarna/aps-evaluator",
   "version": "0.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
