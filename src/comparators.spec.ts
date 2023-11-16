@@ -1,75 +1,109 @@
-import { cloneDeep } from 'lodash'
+import { sub as subtractFromDate, add as addToDate } from 'date-fns'
 
-import { MatchKey, compareCostsAddUp } from './comparators'
-import { createMockComparisonInput } from './testUtils'
-import { LineItem } from './types'
+import {
+  MatchKey,
+  compareDates,
+  compareNumerics,
+  compareOrderStatus,
+  compareStrings,
+  fullOrNoMatchComparison,
+} from './comparators'
+import { ALLOWED_DATE_DIFFERENCE_HOURS } from './constants'
 
-describe('compareCostsAddUp', () => {
-  it('should return full match if costs are adding up', () => {
-    const parsed = createMockComparisonInput({
-      totalAmount: 100,
-      shippingTotal: 2.5,
-      coupon: 5,
-      giftCard: 10,
-      totalTaxAmount: 20,
-      currency: 'USD',
-      discount: 30,
-      lineItems: [
-        {
-          unitPrice: 10,
-          quantity: 5,
-        } as LineItem,
-        {
-          unitPrice: 72.5,
-          quantity: null,
-        } as LineItem,
-      ],
-    })
-    const labeled = cloneDeep(parsed)
-
-    const result = compareCostsAddUp(parsed, labeled)
-    expect(result).toEqual(MatchKey.FULL)
+describe('compareNumerics', () => {
+  it('should strictly compare numbers when running without partial matching', () => {
+    expect(compareNumerics(1, 1)).toEqual(MatchKey.FULL)
+    expect(compareNumerics(1, 0.99)).toEqual(MatchKey.NO)
   })
 
-  it('should return null if costs are not adding up in either of the labeled and the parsed', () => {
-    const parsed = createMockComparisonInput({
-      totalAmount: 100,
-      lineItems: [
-        {
-          unitPrice: 10,
-          quantity: 5,
-        } as LineItem,
-      ],
-    })
-    const labeled = cloneDeep(parsed)
+  it('should allow partial matching within leeway', () => {
+    expect(
+      compareNumerics(1, 0.99, { allowPartialMatch: true, leeway: Math.abs(1 - 1 / 0.99) })
+    ).toEqual(MatchKey.PARTIAL)
 
-    const result = compareCostsAddUp(parsed, labeled)
+    expect(
+      compareNumerics(1, 1.01, { allowPartialMatch: true, leeway: Math.abs(1 - 1 / 1.01) })
+    ).toEqual(MatchKey.PARTIAL)
+  })
+})
 
-    expect(result).toEqual(null)
+describe('fullOrNoMatchComparison', () => {
+  it('should return match when values match', () => {
+    expect(fullOrNoMatchComparison('foo', 'foo')).toEqual(MatchKey.FULL)
   })
 
-  it('should return no match if costs are adding up in the labeled but not the parsed', () => {
-    const parsed = createMockComparisonInput({
-      totalAmount: 100,
-      lineItems: [
-        {
-          unitPrice: 10,
-          quantity: 5,
-        } as LineItem,
-      ],
-    })
-    const labeled = createMockComparisonInput({
-      totalAmount: 100,
-      lineItems: [
-        {
-          unitPrice: 10,
-          quantity: 10,
-        } as LineItem,
-      ],
-    })
+  it('should return no match when values are different', () => {
+    expect(fullOrNoMatchComparison('foo', 'food')).toEqual(MatchKey.NO)
+  })
+})
 
-    const result = compareCostsAddUp(parsed, labeled)
+describe('compareStrings', () => {
+  it('should return null when values to be compared are both null', () => {
+    expect(compareStrings(null, null)).toEqual(null)
+  })
 
-    expect(result).toEqual(MatchKey.NO)
+  it('should stricly match strings as default', () => {
+    expect(compareStrings('foo', 'food')).toEqual(MatchKey.NO)
+  })
+
+  it('should optionally allow partial string matching', () => {
+    expect(compareStrings('foo', 'food', { allowPartialMatch: true })).toEqual(MatchKey.PARTIAL)
+  })
+})
+
+describe('compareDates', () => {
+  it('should handle null values correctly', () => {
+    const someDate = new Date('2023-01-01T00:00:00.000Z')
+
+    expect(compareDates(null, null)).toEqual(null)
+    expect(compareDates(someDate, null)).toEqual(MatchKey.NO)
+    expect(compareDates(null, someDate)).toEqual(MatchKey.NO)
+  })
+
+  it('should ignore hour and time component even when doing non-partial matching', () => {
+    const date1 = new Date('2023-01-01T06:00:00Z')
+    const date2 = new Date('2023-01-01T08:00:00Z')
+
+    expect(compareDates(date1, date2)).toBe(MatchKey.FULL)
+  })
+
+  it('should handle partial date matching', () => {
+    const date = new Date('2023-01-01T00:00:00.000Z')
+
+    const date1 = subtractFromDate(date, { hours: ALLOWED_DATE_DIFFERENCE_HOURS })
+    const date2 = addToDate(date, { hours: ALLOWED_DATE_DIFFERENCE_HOURS })
+
+    expect(compareDates(date, date1, { allowPartialMatch: true })).toBe(MatchKey.PARTIAL)
+    expect(compareDates(date1, date, { allowPartialMatch: true })).toBe(MatchKey.PARTIAL)
+
+    expect(compareDates(date, date2, { allowPartialMatch: true })).toBe(MatchKey.PARTIAL)
+    expect(compareDates(date2, date, { allowPartialMatch: true })).toBe(MatchKey.PARTIAL)
+
+    expect(compareDates(date1, date2, { allowPartialMatch: true })).toBe(MatchKey.NO)
+    expect(compareDates(date2, date1, { allowPartialMatch: true })).toBe(MatchKey.NO)
+  })
+})
+
+describe('compareOrderStatus', () => {
+  it('should handle null values correctly', () => {
+    expect(compareOrderStatus(null, null)).toEqual(null)
+  })
+
+  it('should match if values match', () => {
+    expect(compareOrderStatus('order_in_transit', 'order_in_transit')).toEqual(MatchKey.FULL)
+  })
+
+  it('should not match if values do not match', () => {
+    expect(compareOrderStatus('order_confirmation', 'order_in_transit')).toEqual(MatchKey.NO)
+  })
+
+  it('should handle exceptions correctly', () => {
+    expect(compareOrderStatus('order_in_transit', 'order_delayed')).toEqual(MatchKey.FULL)
+    expect(compareOrderStatus('other', 'order_delayed')).toEqual(MatchKey.FULL)
+
+    expect(compareOrderStatus('order_in_transit', 'order_delivery_failed')).toEqual(MatchKey.FULL)
+    expect(compareOrderStatus('other', 'order_delivery_failed')).toEqual(MatchKey.FULL)
+
+    expect(compareOrderStatus(null, 'other')).toEqual(MatchKey.FULL)
   })
 })

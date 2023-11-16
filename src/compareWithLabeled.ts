@@ -3,15 +3,16 @@ import { isDate, format as formatDate } from 'date-fns'
 import {
   ComparisonFn,
   MatchKey,
-  compareCostsAddUp,
   compareDates,
   fullOrNoMatchComparison,
   compareStrings,
   ComparisonOptions,
   compareNumerics,
+  compareOrderStatus,
 } from './comparators'
 import { LEEWAY } from './constants'
-import type { ComparisonInput, LineItem } from './types'
+import { calculateOrderTotal } from './orderTotalCalculator'
+import { ComparisonInput, LineItem } from './types'
 
 type FieldResult = {
   match: MatchKey | null
@@ -96,19 +97,6 @@ export const evaluateField = (
   }
 }
 
-const evaluateCostsAddUp = (parsed: ComparisonInput, labeled: ComparisonInput): FieldResult => {
-  const costsAddUp = compareCostsAddUp(parsed, labeled)
-
-  let comments
-  if (costsAddUp === MatchKey.NO) {
-    comments = ['Calculated cost does not match extracted order total']
-  }
-  return {
-    match: costsAddUp,
-    comments,
-  }
-}
-
 export const evaluateArray = <T = unknown>(
   fieldName: string,
   parsed: T[] | null,
@@ -154,6 +142,48 @@ export const evaluateArray = <T = unknown>(
     match: resultingMatchKey,
     comments: comments.length ? comments : null,
   }
+}
+
+export const evaluateCostsAddUp = (
+  parsed: ComparisonInput,
+  labeled: ComparisonInput
+): FieldResult => {
+  const expectedTotal = labeled?.totalAmount
+  if (!expectedTotal) return { match: null, comments: ['missing labeled total amount'] }
+
+  const calculatedTotalParsed = calculateOrderTotal(parsed)
+  const calculatedTotalLabeled = calculateOrderTotal(labeled)
+
+  const comparisonOptions: ComparisonOptions = {
+    allowPartialMatch: true,
+    leeway: LEEWAY.costsAddUp,
+  }
+
+  // We also account for leniency when comparing computed total against the labeled total
+  const computedCostsMatchExpectedTotal = compareNumerics(
+    calculatedTotalLabeled,
+    expectedTotal,
+    comparisonOptions
+  )
+
+  // If the total amounts don't add up in the labeled data we shouldn't expect it to do so
+  // in the parsed data either
+  if (computedCostsMatchExpectedTotal === MatchKey.NO) {
+    return {
+      match: null,
+      comments: ['labeled order total does not add up'],
+    }
+  }
+
+  const match = compareNumerics(calculatedTotalParsed, expectedTotal, comparisonOptions)
+  if (match === MatchKey.PARTIAL || match === MatchKey.NO) {
+    return {
+      match,
+      comments: [createMismatchComment(match, calculatedTotalParsed, expectedTotal)],
+    }
+  }
+
+  return { match }
 }
 
 export const evaluateLineItemCount = (
@@ -330,8 +360,8 @@ export const compareWithLabeled = ({
   parsed: ComparisonInput
   labeled: ComparisonInput
 }): ComparisonResult & ApsScore => {
-  const fieldResults = {
-    status: evaluateField('status', parsed, labeled, fullOrNoMatchComparison),
+  const fieldResults: ComparisonResult = {
+    status: evaluateField('status', parsed, labeled, compareOrderStatus),
     currency: evaluateField('currency', parsed, labeled, fullOrNoMatchComparison),
     orderDate: evaluateField('orderDate', parsed, labeled, compareDates, {
       allowPartialMatch: true,
@@ -372,20 +402,20 @@ export const compareWithLabeled = ({
     merchantDomain: evaluateField('merchantDomain', parsed, labeled, compareStrings, {
       allowPartialMatch: true,
     }),
-    costsAddUp: evaluateCostsAddUp(parsed, labeled),
     carriers: evaluateArray('carriers', parsed.carriers, labeled.carriers, compareStrings),
     trackingLinks: evaluateArray(
       'trackingLinks',
       parsed.trackingLinks,
       labeled.trackingLinks,
-      fullOrNoMatchComparison
+      compareStrings
     ),
     trackingNumbers: evaluateArray(
       'trackingNumbers',
       parsed.trackingLinks,
       parsed.trackingNumbers,
-      fullOrNoMatchComparison
+      compareStrings
     ),
+    costsAddUp: evaluateCostsAddUp(parsed, labeled),
     lineItemCount: evaluateLineItemCount(parsed.lineItems, labeled.lineItems),
     ...evaluateLineItemFields(parsed.lineItems, labeled.lineItems),
   }
