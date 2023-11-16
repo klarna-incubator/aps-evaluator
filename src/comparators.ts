@@ -1,10 +1,9 @@
 import { differenceInHours } from 'date-fns'
-import { difference, inRange, intersection, isEqual } from 'lodash'
+import { difference, intersection, isEqual } from 'lodash'
 
-import { ALLOWED_DATE_DIFFERENCE_HOURS, LEEWAY, MAX_WRONG_TRIGRAMS } from './constants'
+import { ALLOWED_DATE_DIFFERENCE_HOURS, MAX_WRONG_TRIGRAMS } from './constants'
 import { normalizeForMatch } from './normalize'
 import { trigrams } from './trigram'
-import { ComparisonInput } from './types'
 
 export enum MatchKey {
   FULL = 'Full match',
@@ -36,11 +35,14 @@ export const fullOrNoMatchComparison: ComparisonFn = (parsed, labeled) => {
     : MatchKey.NO
 }
 
-export const compareNumerics: ComparisonFn<number> = (parsed, labeled, options) => {
+export const compareNumerics: ComparisonFn<number | null> = (parsed, labeled, options) => {
+  if (parsed === null && labeled === null) return null
+  if (parsed === null || labeled === null) return MatchKey.NO
+
   const match = fullOrNoMatchComparison(parsed, labeled)
   if (match === MatchKey.NO && options?.allowPartialMatch && options?.leeway) {
     const { upper, lower } = getUpperLowerLeewayBounds(labeled, options.leeway)
-    const withinRange = inRange(parsed, upper, lower)
+    const withinRange = parsed >= lower && parsed <= upper
     if (withinRange) {
       return MatchKey.PARTIAL
     }
@@ -48,7 +50,10 @@ export const compareNumerics: ComparisonFn<number> = (parsed, labeled, options) 
   return match
 }
 
-export const compareStrings: ComparisonFn<string> = (parsed, labeled, options) => {
+export const compareStrings: ComparisonFn<string | null> = (parsed, labeled, options) => {
+  if (parsed === null && labeled === null) return null
+  if (parsed === null || labeled === null) return MatchKey.NO
+
   const match = fullOrNoMatchComparison(parsed, labeled)
   if (match === MatchKey.NO && options?.allowPartialMatch) {
     const parsedTrigrams = trigrams(normalizeForMatch(parsed) as string)
@@ -64,6 +69,9 @@ export const compareStrings: ComparisonFn<string> = (parsed, labeled, options) =
 }
 
 export const compareDates: ComparisonFn<Date | null> = (parsed, labeled, options) => {
+  if (parsed === null && labeled === null) return null
+  if (parsed === null || labeled === null) return MatchKey.NO
+
   const match = fullOrNoMatchComparison(parsed, labeled)
   if (match === MatchKey.NO && parsed && labeled && options?.allowPartialMatch) {
     const hourDiff = differenceInHours(parsed, labeled)
@@ -75,7 +83,9 @@ export const compareDates: ComparisonFn<Date | null> = (parsed, labeled, options
   return match
 }
 
-export const compareOrderStatus: ComparisonFn<string> = (parsed, labeled) => {
+export const compareOrderStatus: ComparisonFn<string | null> = (parsed, labeled) => {
+  if (parsed === null && labeled === null) return null
+
   const allowedStatusMapping: Record<string, (string | null)[]> = {
     order_delayed: ['other', 'order_in_transit'],
     order_delivery_failed: ['other', 'order_in_transit'],
@@ -85,74 +95,10 @@ export const compareOrderStatus: ComparisonFn<string> = (parsed, labeled) => {
   let match = isEqual(parsed, labeled) ? MatchKey.FULL : MatchKey.NO
 
   // Special Overrides
-  if (allowedStatusMapping[labeled] && allowedStatusMapping[labeled].includes(parsed)) {
+  const override = allowedStatusMapping[labeled as keyof typeof allowedStatusMapping]
+  if (override && override.includes(parsed)) {
     match = MatchKey.FULL
   }
 
   return match
-}
-
-export const hasSeparateTaxLineItem = (
-  parsed: ComparisonInput,
-  calculatedTotalAmount: number
-): boolean => {
-  const MAX_TAX_RATE = 0.25
-  const CURRENCIES_WITH_SEPARATE_TAX_LINE_ITEM = ['USD']
-
-  if (parsed.currency && !CURRENCIES_WITH_SEPARATE_TAX_LINE_ITEM.includes(parsed.currency)) {
-    return true
-  }
-
-  if (!parsed.lineItems?.length) return false
-  if (!parsed.totalTaxAmount) return true
-  if (!parsed.totalAmount) return true
-
-  const calculatedTaxRate = parsed.totalTaxAmount / parsed.totalAmount
-  if (calculatedTaxRate > MAX_TAX_RATE) {
-    return false
-  }
-
-  return calculatedTotalAmount <= parsed.totalAmount
-}
-
-const calculateOrderTotal = (input: ComparisonInput): number => {
-  const lineItemsCosts =
-    input.lineItems?.reduce(
-      (previousValue, lineItem) =>
-        previousValue + (lineItem.quantity ?? 1) * (lineItem.unitPrice ?? 0),
-      0
-    ) ?? 0
-  const orderCosts = input.shippingTotal ?? 0
-  const discounts = (input.coupon ?? 0) + (input.discount ?? 0) + (input.giftCard ?? 0)
-
-  const calculatedTotalAmount = lineItemsCosts + orderCosts - discounts
-
-  return hasSeparateTaxLineItem(input, calculatedTotalAmount)
-    ? calculatedTotalAmount + (input.totalTaxAmount ?? 0)
-    : calculatedTotalAmount
-}
-
-export const compareCostsAddUp: ComparisonFn<ComparisonInput> = (parsed, labeled) => {
-  const expectedTotal = labeled?.totalAmount
-  if (!expectedTotal) return null
-
-  const calculatedTotalParsed = calculateOrderTotal(parsed)
-  const calculatedTotalLabeled = calculateOrderTotal(labeled)
-
-  // We also account up for leniency when comparing out computed total against the labeled total
-  const computedCostsMatchExpectedTotal = compareNumerics(calculatedTotalLabeled, expectedTotal, {
-    allowPartialMatch: true,
-    leeway: LEEWAY.costsAddUp,
-  })
-
-  // If the total amounts don't add up in the labeled data we shouldn't penalize them not doing
-  // so in the parsed data either
-  if (computedCostsMatchExpectedTotal === MatchKey.NO) {
-    return null
-  }
-
-  return compareNumerics(calculatedTotalParsed, expectedTotal, {
-    allowPartialMatch: true,
-    leeway: LEEWAY.costsAddUp,
-  })
 }

@@ -1,8 +1,11 @@
+import { cloneDeep } from 'lodash'
+
 import { MatchKey } from './comparators'
 import {
   calculateAPS,
   createMismatchComment,
   evaluateArray,
+  evaluateCostsAddUp,
   evaluateField,
   evaluateLineItemCount,
   evaluateLineItemFields,
@@ -219,6 +222,76 @@ describe('evaluateLineItemCount', () => {
     const labeled = null
     const result = evaluateLineItemCount(parsed, labeled)
     expect(result).toEqual({ match: MatchKey.FULL })
+  })
+})
+
+describe('evaluateCostsAddUp', () => {
+  it('should return full match if costs are adding up', () => {
+    const parsed = createMockComparisonInput({
+      totalAmount: 100,
+      shippingTotal: 2.5,
+      coupon: 5,
+      giftCard: 10,
+      totalTaxAmount: 20,
+      currency: 'USD',
+      discount: 30,
+      lineItems: [
+        {
+          unitPrice: 10,
+          quantity: 5,
+        } as LineItem,
+        {
+          unitPrice: 72.5,
+          quantity: null,
+        } as LineItem,
+      ],
+    })
+    const labeled = cloneDeep(parsed)
+
+    const result = evaluateCostsAddUp(parsed, labeled)
+    expect(result).toEqual({ match: MatchKey.FULL })
+  })
+
+  it('should return null if costs are not adding up in either of the labeled and the parsed', () => {
+    const parsed = createMockComparisonInput({
+      totalAmount: 100,
+      lineItems: [
+        {
+          unitPrice: 10,
+          quantity: 5,
+        } as LineItem,
+      ],
+    })
+    const labeled = cloneDeep(parsed)
+
+    const result = evaluateCostsAddUp(parsed, labeled)
+
+    expect(result).toEqual({ match: null, comments: ['labeled order total does not add up'] })
+  })
+
+  it('should return no match if costs are adding up in the labeled but not the parsed', () => {
+    const parsed = createMockComparisonInput({
+      totalAmount: 100,
+      lineItems: [
+        {
+          unitPrice: 10,
+          quantity: 5,
+        } as LineItem,
+      ],
+    })
+    const labeled = createMockComparisonInput({
+      totalAmount: 100,
+      lineItems: [
+        {
+          unitPrice: 10,
+          quantity: 10,
+        } as LineItem,
+      ],
+    })
+
+    const result = evaluateCostsAddUp(parsed, labeled)
+
+    expect(result).toEqual({ match: MatchKey.NO, comments: ['expected "100" but got "50"'] })
   })
 })
 

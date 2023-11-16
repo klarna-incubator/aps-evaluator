@@ -1,3 +1,4 @@
+// Note: This LEEWAY is represented as percentages
 export const LEEWAY = {
   coupon: 0.05,
   discount: 0.005,
