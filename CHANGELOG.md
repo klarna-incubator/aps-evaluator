@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0](https://github.com/klarna-incubator/aps-evaluator/compare/v1.2.0...v1.3.0) (2023-11-17)
+
+
+### Features
+
+* Added APS_FIELDS constant to exports ([6c4bc8d](https://github.com/klarna-incubator/aps-evaluator/commit/6c4bc8db9ec8797002953eb2fe4f54eb48640986))
+* Updated package exports to include types for ComparisonInput and ComparisonResult as well as MatchKey enum ([335fd46](https://github.com/klarna-incubator/aps-evaluator/commit/335fd46d142e10e1d0b190a283464f273c2b74a1))
+
+
+### Bug Fixes
+
+* Removed unused commands and dependencies from package.json and standardized timezone when running tests ([0f4981c](https://github.com/klarna-incubator/aps-evaluator/commit/0f4981ca829521e2924cf1c6c8ab92d25fbefb36))
+
 ## [1.2.0](https://github.com/klarna-incubator/aps-evaluator/compare/v1.1.0...v1.2.0) (2023-11-17)
 
 
