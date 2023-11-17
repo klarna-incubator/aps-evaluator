@@ -12,3 +12,9 @@ export const LEEWAY = {
 
 export const MAX_WRONG_TRIGRAMS = 5
 export const ALLOWED_DATE_DIFFERENCE_HOURS = 24
+
+export enum MatchKey {
+  FULL = 'Full match',
+  PARTIAL = 'Partial Match',
+  NO = 'No match',
+}

@@ -2,7 +2,6 @@ import { isDate, format as formatDate } from 'date-fns'
 
 import {
   ComparisonFn,
-  MatchKey,
   compareDates,
   fullOrNoMatchComparison,
   compareStrings,
@@ -10,41 +9,17 @@ import {
   compareNumerics,
   compareOrderStatus,
 } from './comparators'
-import { LEEWAY } from './constants'
+import { LEEWAY, MatchKey } from './constants'
 import { calculateOrderTotal } from './orderTotalCalculator'
-import { ComparisonInput, LineItem } from './types'
+import {
+  ComparisonInput,
+  ComparisonResult,
+  FieldResult,
+  LineItem,
+  LineItemFieldResults,
+} from './types'
 
-type FieldResult = {
-  match: MatchKey | null
-  comments?: string[] | null
-}
-
-type LineItemFieldResults = {
-  lineItemName: FieldResult
-  lineItemUnitPrice: FieldResult
-  lineItemQuantity: FieldResult
-  lineItemProductImageUrl: FieldResult
-  lineItemColor: FieldResult
-  lineItemSize: FieldResult
-  lineItemProductId: FieldResult
-  lineItemUrl: FieldResult
-}
-
-type CalculatedFieldResults = {
-  costsAddUp: FieldResult
-  lineItemCount: FieldResult
-}
-
-type BaseFieldResults = Omit<
-  {
-    [field in keyof ComparisonInput]: FieldResult
-  },
-  'lineItems'
->
-
-export type ComparisonResult = BaseFieldResults & LineItemFieldResults & CalculatedFieldResults
-
-type ApsScore = { APS: number }
+type ComparisonResultWithoutAPS = Omit<ComparisonResult, 'APS'>
 
 export const createMismatchComment = (
   match: MatchKey,
@@ -311,8 +286,8 @@ export const evaluateLineItemFields = (
   return result
 }
 
-export const calculateAPS = (fieldResults: ComparisonResult): number => {
-  type ApsFields = Array<keyof ComparisonResult>
+export const calculateAPS = (fieldResults: ComparisonResultWithoutAPS): number => {
+  type ApsFields = Array<keyof ComparisonResultWithoutAPS>
 
   const APS_FIELDS: ApsFields = [
     'carriers',
@@ -359,8 +334,8 @@ export const compareWithLabeled = ({
 }: {
   parsed: ComparisonInput
   labeled: ComparisonInput
-}): ComparisonResult & ApsScore => {
-  const fieldResults: ComparisonResult = {
+}): ComparisonResult => {
+  const fieldResults: ComparisonResultWithoutAPS = {
     status: evaluateField('status', parsed, labeled, compareOrderStatus),
     currency: evaluateField('currency', parsed, labeled, fullOrNoMatchComparison),
     orderDate: evaluateField('orderDate', parsed, labeled, compareDates, {

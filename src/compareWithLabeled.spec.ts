@@ -1,6 +1,5 @@
 import { cloneDeep } from 'lodash'
 
-import { MatchKey } from './comparators'
 import {
   calculateAPS,
   createMismatchComment,
@@ -10,6 +9,7 @@ import {
   evaluateLineItemCount,
   evaluateLineItemFields,
 } from './compareWithLabeled'
+import { MatchKey } from './constants'
 import { createMockComparisonInput, createMockComparisonResult } from './testUtils'
 import { LineItem } from './types'
 

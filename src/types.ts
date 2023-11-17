@@ -1,3 +1,5 @@
+import { MatchKey } from './constants'
+
 export type LineItem = {
   color: string | null
   imageUrl: string | null
@@ -27,3 +29,38 @@ export type ComparisonInput = {
   trackingLinks: string[] | null
   trackingNumbers: string[] | null
 }
+
+export type FieldResult = {
+  match: MatchKey | null
+  comments?: string[] | null
+}
+
+export type LineItemFieldResults = {
+  lineItemName: FieldResult
+  lineItemUnitPrice: FieldResult
+  lineItemQuantity: FieldResult
+  lineItemProductImageUrl: FieldResult
+  lineItemColor: FieldResult
+  lineItemSize: FieldResult
+  lineItemProductId: FieldResult
+  lineItemUrl: FieldResult
+}
+
+type CalculatedFieldResults = {
+  costsAddUp: FieldResult
+  lineItemCount: FieldResult
+}
+
+type BaseFieldResults = Omit<
+  {
+    [field in keyof ComparisonInput]: FieldResult
+  },
+  'lineItems'
+>
+
+type ApsScore = { APS: number }
+
+export type ComparisonResult = BaseFieldResults &
+  LineItemFieldResults &
+  CalculatedFieldResults &
+  ApsScore

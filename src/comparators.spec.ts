@@ -1,14 +1,13 @@
 import { sub as subtractFromDate, add as addToDate } from 'date-fns'
 
 import {
-  MatchKey,
   compareDates,
   compareNumerics,
   compareOrderStatus,
   compareStrings,
   fullOrNoMatchComparison,
 } from './comparators'
-import { ALLOWED_DATE_DIFFERENCE_HOURS } from './constants'
+import { ALLOWED_DATE_DIFFERENCE_HOURS, MatchKey } from './constants'
 
 describe('compareNumerics', () => {
   it('should strictly compare numbers when running without partial matching', () => {
