@@ -13,9 +13,7 @@
     "build": "rimraf dist && tsc -p ./tsconfig.build.json",
     "lint": "eslint \"./src/**/*.{js,ts}\"",
     "lint:fix": "yarn lint --fix",
-    "start:dev": "NODE_ENV=development nodemon --exec ts-node --files src/index.ts",
-    "start": "node dist/index.js",
-    "test": "jest",
+    "test": "TZ=UTC jest",
     "test:package": "ts-node ./test/index.ts"
   },
   "devDependencies": {
@@ -33,7 +31,6 @@
     "eslint-plugin-security": "^1.7.1",
     "eslint-plugin-standard": "^5.0.0",
     "jest": "^29.7.0",
-    "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
