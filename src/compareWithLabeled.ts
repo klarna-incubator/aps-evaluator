@@ -369,8 +369,8 @@ export const compareWithLabeled = ({
     ),
     trackingNumbers: evaluateArray(
       'trackingNumbers',
-      parsed.trackingLinks,
       parsed.trackingNumbers,
+      labeled.trackingNumbers,
       compareStrings
     ),
     costsAddUp: evaluateCostsAddUp(parsed, labeled),
