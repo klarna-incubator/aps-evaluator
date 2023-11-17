@@ -1,3 +1,3 @@
 export { compareWithLabeled } from './compareWithLabeled'
-export { MatchKey } from './constants'
+export { MatchKey, APS_FIELDS } from './constants'
 export type { ComparisonInput, ComparisonResult } from './types'

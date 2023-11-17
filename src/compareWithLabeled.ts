@@ -9,7 +9,7 @@ import {
   compareNumerics,
   compareOrderStatus,
 } from './comparators'
-import { LEEWAY, MatchKey } from './constants'
+import { APS_FIELDS, LEEWAY, MatchKey } from './constants'
 import { calculateOrderTotal } from './orderTotalCalculator'
 import {
   ComparisonInput,
@@ -287,24 +287,7 @@ export const evaluateLineItemFields = (
 }
 
 export const calculateAPS = (fieldResults: ComparisonResultWithoutAPS): number => {
-  type ApsFields = Array<keyof ComparisonResultWithoutAPS>
-
-  const APS_FIELDS: ApsFields = [
-    'carriers',
-    'costsAddUp',
-    'currency',
-    'lineItemCount',
-    'lineItemName',
-    'lineItemProductImageUrl',
-    'lineItemUnitPrice',
-    'merchantName',
-    'orderDate',
-    'orderNumbers',
-    'status',
-    'totalAmount',
-    'trackingLinks',
-    'trackingNumbers',
-  ]
+  const fieldsToCompare = [...APS_FIELDS]
 
   const isFullOrPartialMatch = (match: MatchKey) =>
     [MatchKey.FULL, MatchKey.PARTIAL].includes(match)
@@ -314,11 +297,11 @@ export const calculateAPS = (fieldResults: ComparisonResultWithoutAPS): number =
     isFullOrPartialMatch(fieldResults.carriers.match as MatchKey)
   ) {
     // Remove trackingLinks from TRACKING_PARSER_APS_FIELDS as we have valid tracking information in other fields
-    APS_FIELDS.splice(APS_FIELDS.indexOf('trackingLinks'), 1)
+    fieldsToCompare.splice(fieldsToCompare.indexOf('trackingLinks'), 1)
   }
 
   let apsScore = 1
-  for (const field of APS_FIELDS) {
+  for (const field of fieldsToCompare) {
     const { match } = fieldResults[field]
     if (match === MatchKey.NO) {
       apsScore = 0
