@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1](https://github.com/klarna-incubator/aps-evaluator/compare/v1.3.0...v1.3.1) (2023-11-17)
+
+
+### Bug Fixes
+
+* Fixed issue where tracking numbers were not compared correctely ([fdb3407](https://github.com/klarna-incubator/aps-evaluator/commit/fdb340730c2a9ca2fbdd2149324ec4e569475a6d))
+
 ## [1.3.0](https://github.com/klarna-incubator/aps-evaluator/compare/v1.2.0...v1.3.0) (2023-11-17)
 
 
