@@ -1,6 +1,6 @@
 import { compareWithLabeled } from '../src/index'
 
-const main = async () => {
+const main = () => {
   const parsed = {
     carriers: ['carrier1', 'carrier2'],
     coupon: 10,

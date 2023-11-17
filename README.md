@@ -1,6 +1,6 @@
 # APS Evaluator
 
-APS is an acronym for Accurately Parsed Score and aims to provide a unified standard for comparing parsing results and ground truths between Klarna and Nylas.
+APS is an acronym for Accurately Parsed Score and aims to provide a unified standard for comparing parsing results and ground truths.
 
 ## Usage
 

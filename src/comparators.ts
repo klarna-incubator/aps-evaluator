@@ -1,15 +1,9 @@
 import { differenceInHours } from 'date-fns'
 import { difference, intersection, isEqual } from 'lodash'
 
-import { ALLOWED_DATE_DIFFERENCE_HOURS, MAX_WRONG_TRIGRAMS } from './constants'
+import { ALLOWED_DATE_DIFFERENCE_HOURS, MAX_WRONG_TRIGRAMS, MatchKey } from './constants'
 import { normalizeForMatch } from './normalize'
 import { trigrams } from './trigram'
-
-export enum MatchKey {
-  FULL = 'Full match',
-  PARTIAL = 'Partial Match',
-  NO = 'No match',
-}
 
 export type ComparisonOptions = {
   leeway?: number

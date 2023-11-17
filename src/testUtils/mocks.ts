@@ -1,5 +1,6 @@
-import { ComparisonResult } from '../compareWithLabeled'
-import { ComparisonInput } from '../types'
+import { ComparisonInput, ComparisonResult } from '../types'
+
+type ComparisonResultWithoutAPS = Omit<ComparisonResult, 'APS'>
 
 export const createMockComparisonInput = (
   overrides?: Partial<ComparisonInput>
@@ -23,8 +24,8 @@ export const createMockComparisonInput = (
   ...overrides,
 })
 
-export const createMockComparisonResult = (overrides?: Partial<ComparisonResult>) => {
-  const result: ComparisonResult = {
+export const createMockComparisonResult = (overrides?: Partial<ComparisonResultWithoutAPS>) => {
+  const result: ComparisonResultWithoutAPS = {
     carriers: { match: null },
     costsAddUp: { match: null },
     coupon: { match: null },
