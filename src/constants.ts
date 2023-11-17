@@ -1,3 +1,5 @@
+import { ComparisonResult } from './types'
+
 // Note: This LEEWAY is represented as percentages
 export const LEEWAY = {
   coupon: 0.05,
@@ -18,3 +20,22 @@ export enum MatchKey {
   PARTIAL = 'Partial Match',
   NO = 'No match',
 }
+
+type ApsFields = Readonly<Array<keyof Omit<ComparisonResult, 'APS'>>>
+
+export const APS_FIELDS: ApsFields = [
+  'carriers',
+  'costsAddUp',
+  'currency',
+  'lineItemCount',
+  'lineItemName',
+  'lineItemProductImageUrl',
+  'lineItemUnitPrice',
+  'merchantName',
+  'orderDate',
+  'orderNumbers',
+  'status',
+  'totalAmount',
+  'trackingLinks',
+  'trackingNumbers',
+] as const
