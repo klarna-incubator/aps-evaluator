@@ -24,6 +24,16 @@ describe('compareNumerics', () => {
       compareNumerics(1, 1.01, { allowPartialMatch: true, leeway: Math.abs(1 - 1 / 1.01) })
     ).toEqual(MatchKey.PARTIAL)
   })
+
+  it('should partial match null and zero values when partial matching is enabled', () => {
+    expect(compareNumerics(0, null, { allowPartialMatch: true })).toEqual(MatchKey.PARTIAL)
+    expect(compareNumerics(null, 0, { allowPartialMatch: true })).toEqual(MatchKey.PARTIAL)
+  })
+
+  it('should not partial match null and zero values when partial matching is disabled', () => {
+    expect(compareNumerics(0, null, { allowPartialMatch: false })).toEqual(MatchKey.NO)
+    expect(compareNumerics(null, 0, { allowPartialMatch: false })).toEqual(MatchKey.NO)
+  })
 })
 
 describe('fullOrNoMatchComparison', () => {
