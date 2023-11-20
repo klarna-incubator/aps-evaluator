@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2](https://github.com/klarna-incubator/aps-evaluator/compare/v1.3.1...v1.3.2) (2023-11-20)
+
+
+### Bug Fixes
+
+* Fixed issue where fallback values for line-item quantity was not implemented correctly ([083c8eb](https://github.com/klarna-incubator/aps-evaluator/commit/083c8ebdfa02fbab09bb0f033150784be8f2fb5c))
+* Return partial match when comparing null and zero values for numerics if partial matching is enabled ([7b75ddc](https://github.com/klarna-incubator/aps-evaluator/commit/7b75ddcce377b89da3d35689591938f7ab99f300))
+
 ## [1.3.1](https://github.com/klarna-incubator/aps-evaluator/compare/v1.3.0...v1.3.1) (2023-11-17)
 
 
