@@ -11,7 +11,7 @@ import {
 } from './compareWithLabeled'
 import { MatchKey } from './constants'
 import { createMockComparisonInput, createMockComparisonResult } from './testUtils'
-import { LineItem } from './types'
+import { ComparisonInput, LineItem } from './types'
 
 describe('createMismatchComment', () => {
   it('should return an empty string for a full match', () => {
@@ -122,6 +122,8 @@ describe('evaluateArray', () => {
 })
 
 describe('evaluateLineItemFields', () => {
+  type LineItem = NonNullable<ComparisonInput['lineItems']>[number]
+
   it('should return null matches for null values', () => {
     const result = evaluateLineItemFields(null, null)
     expect(result).toEqual({
@@ -137,7 +139,7 @@ describe('evaluateLineItemFields', () => {
   })
 
   it('should evaluate each field', () => {
-    const parsed = [
+    const parsed: LineItem[] = [
       {
         name: 'success',
         color: 'parsed',
@@ -150,7 +152,7 @@ describe('evaluateLineItemFields', () => {
       },
     ]
 
-    const labeled = [
+    const labeled: LineItem[] = [
       {
         name: 'successful',
         color: 'expected',
@@ -173,6 +175,45 @@ describe('evaluateLineItemFields', () => {
       lineItemQuantity: { match: MatchKey.FULL },
       lineItemSize: { match: MatchKey.NO },
       lineItemUnitPrice: { match: MatchKey.FULL },
+      lineItemUrl: { match: null },
+    })
+  })
+
+  it('should use fallback values', () => {
+    const nullLineItem: LineItem = {
+      name: null,
+      color: null,
+      productId: null,
+      imageUrl: null,
+      quantity: null,
+      size: null,
+      unitPrice: null,
+      url: null,
+    }
+
+    const parsed: LineItem[] = [
+      {
+        ...nullLineItem,
+      },
+    ]
+
+    const labeled: LineItem[] = [
+      {
+        ...nullLineItem,
+        quantity: 1,
+      },
+    ]
+
+    const result = evaluateLineItemFields(parsed, labeled)
+
+    expect(result).toMatchObject({
+      lineItemName: { match: null },
+      lineItemColor: { match: null },
+      lineItemProductId: { match: null },
+      lineItemProductImageUrl: { match: null },
+      lineItemQuantity: { match: MatchKey.FULL },
+      lineItemSize: { match: null },
+      lineItemUnitPrice: { match: null },
       lineItemUrl: { match: null },
     })
   })

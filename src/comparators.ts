@@ -30,12 +30,15 @@ export const fullOrNoMatchComparison: ComparisonFn = (parsed, labeled) => {
 }
 
 export const compareNumerics: ComparisonFn<number | null> = (parsed, labeled, options) => {
+  const { allowPartialMatch = false, leeway } = options || {}
   if (parsed === null && labeled === null) return null
+  if (parsed === 0 && labeled === null && allowPartialMatch) return MatchKey.PARTIAL
+  if (parsed === null && labeled === 0 && allowPartialMatch) return MatchKey.PARTIAL
   if (parsed === null || labeled === null) return MatchKey.NO
 
   const match = fullOrNoMatchComparison(parsed, labeled)
-  if (match === MatchKey.NO && options?.allowPartialMatch && options?.leeway) {
-    const { upper, lower } = getUpperLowerLeewayBounds(labeled, options.leeway)
+  if (match === MatchKey.NO && allowPartialMatch && leeway) {
+    const { upper, lower } = getUpperLowerLeewayBounds(labeled, leeway)
     const withinRange = parsed >= lower && parsed <= upper
     if (withinRange) {
       return MatchKey.PARTIAL

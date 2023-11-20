@@ -270,7 +270,7 @@ export const evaluateLineItemFields = (
 
       let patchedLabeledFieldValues
       if (defaultValue !== undefined) {
-        patchedLabeledFieldValues = parsedFieldValues.map((value) => value ?? defaultValue)
+        patchedLabeledFieldValues = labeledFieldValues.map((value) => value ?? defaultValue)
       }
 
       result[fieldName] = evaluateArray(
