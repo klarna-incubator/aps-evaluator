@@ -17,6 +17,7 @@ import {
   FieldResult,
   LineItem,
   LineItemFieldResults,
+  LineItemWithMultiPossibleValues,
 } from './types'
 
 type ComparisonResultWithoutAPS = Omit<ComparisonResult, 'APS'>
@@ -46,7 +47,7 @@ export const createMismatchComment = (
 export const evaluateField = (
   field: keyof ComparisonInput,
   parsed: ComparisonInput,
-  labeled: ComparisonInput,
+  labeled: ComparisonInput<LineItemWithMultiPossibleValues>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   comparator: ComparisonFn<any>,
   comparatorOptions?: ComparisonOptions
@@ -121,13 +122,13 @@ export const evaluateArray = <T = unknown>(
 
 export const evaluateCostsAddUp = (
   parsed: ComparisonInput,
-  labeled: ComparisonInput
+  labeled: ComparisonInput<LineItemWithMultiPossibleValues>
 ): FieldResult => {
   const expectedTotal = labeled?.totalAmount
   if (!expectedTotal) return { match: null, comments: ['missing labeled total amount'] }
 
   const calculatedTotalParsed = calculateOrderTotal(parsed)
-  const calculatedTotalLabeled = calculateOrderTotal(labeled)
+  const calculatedTotalLabeled = calculateOrderTotal(labeled as ComparisonInput)
 
   const comparisonOptions: ComparisonOptions = {
     allowPartialMatch: true,
@@ -163,7 +164,7 @@ export const evaluateCostsAddUp = (
 
 export const evaluateLineItemCount = (
   parsed: ComparisonInput['lineItems'],
-  labeled: ComparisonInput['lineItems']
+  labeled: ComparisonInput<LineItemWithMultiPossibleValues>['lineItems']
 ): FieldResult => {
   if (!parsed && !labeled) {
     return {
@@ -187,7 +188,7 @@ export const evaluateLineItemCount = (
 
 export const evaluateLineItemFields = (
   parsed: ComparisonInput['lineItems'],
-  labeled: ComparisonInput['lineItems']
+  labeled: ComparisonInput<LineItemWithMultiPossibleValues>['lineItems']
 ): LineItemFieldResults => {
   const result: LineItemFieldResults = {
     lineItemName: { match: null },
@@ -230,7 +231,8 @@ export const evaluateLineItemFields = (
     },
     imageUrl: {
       fieldName: 'lineItemProductImageUrl',
-      comparator: fullOrNoMatchComparison,
+      comparator: compareStrings,
+      comparatorOptions: { allowPartialMatch: false },
     },
     quantity: {
       fieldName: 'lineItemQuantity',
@@ -249,7 +251,8 @@ export const evaluateLineItemFields = (
     },
     url: {
       fieldName: 'lineItemUrl',
-      comparator: fullOrNoMatchComparison,
+      comparator: compareStrings,
+      comparatorOptions: { allowPartialMatch: false },
     },
   }
 
@@ -316,7 +319,7 @@ export const compareWithLabeled = ({
   labeled,
 }: {
   parsed: ComparisonInput
-  labeled: ComparisonInput
+  labeled: ComparisonInput<LineItemWithMultiPossibleValues>
 }): ComparisonResult => {
   const fieldResults: ComparisonResultWithoutAPS = {
     status: evaluateField('status', parsed, labeled, compareOrderStatus),
