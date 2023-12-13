@@ -11,7 +11,7 @@ import {
 } from './compareWithLabeled'
 import { MatchKey } from './constants'
 import { createMockComparisonInput, createMockComparisonResult } from './testUtils'
-import { ComparisonInput, LineItem } from './types'
+import { ComparisonInput, LineItem, LineItemWithMultiPossibleValues } from './types'
 
 describe('createMismatchComment', () => {
   it('should return an empty string for a full match', () => {
@@ -214,6 +214,47 @@ describe('evaluateLineItemFields', () => {
       lineItemQuantity: { match: MatchKey.FULL },
       lineItemSize: { match: null },
       lineItemUnitPrice: { match: null },
+      lineItemUrl: { match: null },
+    })
+  })
+
+  it('should evaluate each field with multiple possible values', () => {
+    const parsed: LineItem[] = [
+      {
+        name: 'success',
+        color: 'parsed',
+        productId: 'parsed',
+        imageUrl: 'parsed',
+        quantity: null,
+        size: 'parsed',
+        unitPrice: 1,
+        url: null,
+      },
+    ]
+
+    const labeled: LineItemWithMultiPossibleValues[] = [
+      {
+        name: ['successful', 'failure'],
+        color: 'expected',
+        productId: 'expected',
+        imageUrl: ['expected', 'not expected'],
+        quantity: 1,
+        size: 'expected',
+        unitPrice: 1,
+        url: null,
+      },
+    ]
+
+    const result = evaluateLineItemFields(parsed, labeled)
+
+    expect(result).toMatchObject({
+      lineItemName: { match: MatchKey.PARTIAL },
+      lineItemColor: { match: MatchKey.NO },
+      lineItemProductId: { match: MatchKey.NO },
+      lineItemProductImageUrl: { match: MatchKey.NO },
+      lineItemQuantity: { match: MatchKey.FULL },
+      lineItemSize: { match: MatchKey.NO },
+      lineItemUnitPrice: { match: MatchKey.FULL },
       lineItemUrl: { match: null },
     })
   })

@@ -4,15 +4,16 @@ import { difference, intersection, isEqual } from 'lodash'
 import { ALLOWED_DATE_DIFFERENCE_HOURS, MAX_WRONG_TRIGRAMS, MatchKey } from './constants'
 import { normalizeForMatch } from './normalize'
 import { trigrams } from './trigram'
+import { MultiPossibleValues } from './types'
 
 export type ComparisonOptions = {
   leeway?: number
   allowPartialMatch?: boolean
 }
 
-export type ComparisonFn<T = unknown> = (
+export type ComparisonFn<T = unknown, U = T> = (
   parsed: T,
-  labeled: T,
+  labeled: U,
   options?: ComparisonOptions
 ) => MatchKey | null
 
@@ -47,22 +48,35 @@ export const compareNumerics: ComparisonFn<number | null> = (parsed, labeled, op
   return match
 }
 
-export const compareStrings: ComparisonFn<string | null> = (parsed, labeled, options) => {
+export const compareStrings: ComparisonFn<string | null, MultiPossibleValues | string | null> = (
+  parsed,
+  labeled,
+  options
+) => {
   if (parsed === null && labeled === null) return null
   if (parsed === null || labeled === null) return MatchKey.NO
 
-  const match = fullOrNoMatchComparison(parsed, labeled)
-  if (match === MatchKey.NO && options?.allowPartialMatch) {
-    const parsedTrigrams = trigrams(normalizeForMatch(parsed) as string)
-    const labeledTrigrams = trigrams(normalizeForMatch(labeled) as string)
-    const diff = difference(labeledTrigrams, parsedTrigrams)
-    const intersect = intersection(labeledTrigrams, parsedTrigrams)
-    if (diff.length <= MAX_WRONG_TRIGRAMS && intersect.length > 0) {
-      return MatchKey.PARTIAL
+  const labeledInputs = Array.isArray(labeled) ? labeled : [labeled]
+  let hasPartialMatch = false
+
+  for (const labeledInput of labeledInputs) {
+    const match = fullOrNoMatchComparison(parsed, labeledInput)
+    if (match === MatchKey.FULL) return match
+
+    if (options?.allowPartialMatch) {
+      const parsedTrigrams = trigrams(normalizeForMatch(parsed) as string)
+      const labeledTrigrams = trigrams(normalizeForMatch(labeledInput) as string)
+      const diff = difference(labeledTrigrams, parsedTrigrams)
+      const intersect = intersection(labeledTrigrams, parsedTrigrams)
+      if (diff.length <= MAX_WRONG_TRIGRAMS && intersect.length > 0) {
+        hasPartialMatch = true
+      }
     }
   }
 
-  return match
+  if (hasPartialMatch) return MatchKey.PARTIAL
+
+  return MatchKey.NO
 }
 
 export const compareDates: ComparisonFn<Date | null> = (parsed, labeled, options) => {

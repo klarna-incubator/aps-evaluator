@@ -1,5 +1,7 @@
 import { MatchKey } from './constants'
 
+export type MultiPossibleValues = string[]
+
 export type LineItem = {
   color: string | null
   imageUrl: string | null
@@ -11,13 +13,19 @@ export type LineItem = {
   url: string | null
 }
 
-export type ComparisonInput = {
+export type LineItemWithMultiPossibleValues = Omit<LineItem, 'imageUrl' | 'name' | 'url'> & {
+  imageUrl: MultiPossibleValues | string | null
+  name: MultiPossibleValues | string | null
+  url: MultiPossibleValues | string | null
+}
+
+export type ComparisonInput<T = LineItem> = {
   carriers: string[] | null
   coupon: number | null
   currency: string | null
   discount: number | null
   giftCard: number | null
-  lineItems: LineItem[] | null
+  lineItems: T[] | null
   merchantDomain: string | null
   merchantName: string | null
   orderDate: Date | null
