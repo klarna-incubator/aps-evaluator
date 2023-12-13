@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://github.com/klarna-incubator/aps-evaluator/compare/v1.3.2...v1.4.0) (2023-12-13)
+
+
+### Features
+
+* support for multi possible values for line item fields ([46dfa97](https://github.com/klarna-incubator/aps-evaluator/commit/46dfa979ece5e2660328675b99b8f7d30ecd13cb))
+
+
+### Bug Fixes
+
+* export lineitem type ([80c18f4](https://github.com/klarna-incubator/aps-evaluator/commit/80c18f407ab18ecb69ae525b82c585d49692d9f4))
+
 ## [1.3.2](https://github.com/klarna-incubator/aps-evaluator/compare/v1.3.1...v1.3.2) (2023-11-20)
 
 
