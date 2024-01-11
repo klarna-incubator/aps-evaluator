@@ -17,7 +17,7 @@ import {
   FieldResult,
   LineItem,
   LineItemFieldResults,
-  LineItemWithMultiPossibleValues,
+  ComparisonInputWithMultipleValues,
 } from './types'
 
 type ComparisonResultWithoutAPS = Omit<ComparisonResult, 'APS'>
@@ -47,7 +47,7 @@ export const createMismatchComment = (
 export const evaluateField = (
   field: keyof ComparisonInput,
   parsed: ComparisonInput,
-  labeled: ComparisonInput<LineItemWithMultiPossibleValues>,
+  labeled: ComparisonInputWithMultipleValues,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   comparator: ComparisonFn<any>,
   comparatorOptions?: ComparisonOptions
@@ -122,7 +122,7 @@ export const evaluateArray = <T = unknown>(
 
 export const evaluateCostsAddUp = (
   parsed: ComparisonInput,
-  labeled: ComparisonInput<LineItemWithMultiPossibleValues>
+  labeled: ComparisonInputWithMultipleValues
 ): FieldResult => {
   const expectedTotal = labeled?.totalAmount
   if (!expectedTotal) return { match: null, comments: ['missing labeled total amount'] }
@@ -164,7 +164,7 @@ export const evaluateCostsAddUp = (
 
 export const evaluateLineItemCount = (
   parsed: ComparisonInput['lineItems'],
-  labeled: ComparisonInput<LineItemWithMultiPossibleValues>['lineItems']
+  labeled: ComparisonInputWithMultipleValues['lineItems']
 ): FieldResult => {
   if (!parsed && !labeled) {
     return {
@@ -188,7 +188,7 @@ export const evaluateLineItemCount = (
 
 export const evaluateLineItemFields = (
   parsed: ComparisonInput['lineItems'],
-  labeled: ComparisonInput<LineItemWithMultiPossibleValues>['lineItems']
+  labeled: ComparisonInputWithMultipleValues['lineItems']
 ): LineItemFieldResults => {
   const result: LineItemFieldResults = {
     lineItemName: { match: null },
@@ -319,7 +319,7 @@ export const compareWithLabeled = ({
   labeled,
 }: {
   parsed: ComparisonInput
-  labeled: ComparisonInput<LineItemWithMultiPossibleValues>
+  labeled: ComparisonInputWithMultipleValues
 }): ComparisonResult => {
   const fieldResults: ComparisonResultWithoutAPS = {
     status: evaluateField('status', parsed, labeled, compareOrderStatus),

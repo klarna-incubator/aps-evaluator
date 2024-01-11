@@ -13,19 +13,23 @@ export type LineItem = {
   url: string | null
 }
 
-export type LineItemWithMultiPossibleValues = Omit<LineItem, 'imageUrl' | 'name' | 'url'> & {
+export type LineItemWithMultiPossibleValues = Omit<
+  LineItem,
+  'imageUrl' | 'name' | 'url' | 'productId'
+> & {
   imageUrl: MultiPossibleValues | string | null
   name: MultiPossibleValues | string | null
   url: MultiPossibleValues | string | null
+  productId: MultiPossibleValues | string | null
 }
 
-export type ComparisonInput<T = LineItem> = {
+export type ComparisonInput = {
   carriers: string[] | null
   coupon: number | null
   currency: string | null
   discount: number | null
   giftCard: number | null
-  lineItems: T[] | null
+  lineItems: LineItem[] | null
   merchantDomain: string | null
   merchantName: string | null
   orderDate: Date | null
@@ -36,6 +40,14 @@ export type ComparisonInput<T = LineItem> = {
   totalTaxAmount: number | null
   trackingLinks: string[] | null
   trackingNumbers: string[] | null
+}
+
+export type ComparisonInputWithMultipleValues = Omit<
+  ComparisonInput,
+  'lineItems' | 'merchantName'
+> & {
+  lineItems: LineItemWithMultiPossibleValues[] | null
+  merchantName: MultiPossibleValues | string | null
 }
 
 export type FieldResult = {
