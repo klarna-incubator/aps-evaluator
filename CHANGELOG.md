@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/klarna-incubator/aps-evaluator/compare/v1.4.0...v1.5.0) (2024-01-12)
+
+
+### Features
+
+* support for multi possible values for productId and merchantName ([3f044af](https://github.com/klarna-incubator/aps-evaluator/commit/3f044af87cfad2a086c95f04610c018914c3b21a))
+
 ## [1.4.0](https://github.com/klarna-incubator/aps-evaluator/compare/v1.3.2...v1.4.0) (2023-12-13)
 
 

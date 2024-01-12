@@ -1,6 +1,6 @@
 {
   "name": "@klarna/aps-evaluator",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Rickard Bergeling <rickard.bergeling@klarna.com>",
