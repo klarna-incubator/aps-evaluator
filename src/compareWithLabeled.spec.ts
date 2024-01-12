@@ -223,7 +223,7 @@ describe('evaluateLineItemFields', () => {
       {
         name: 'success',
         color: 'parsed',
-        productId: 'parsed',
+        productId: 'expected',
         imageUrl: 'parsed',
         quantity: null,
         size: 'parsed',
@@ -236,7 +236,7 @@ describe('evaluateLineItemFields', () => {
       {
         name: ['successful', 'failure'],
         color: 'expected',
-        productId: 'expected',
+        productId: ['expected'],
         imageUrl: ['expected', 'not expected'],
         quantity: 1,
         size: 'expected',
@@ -250,7 +250,7 @@ describe('evaluateLineItemFields', () => {
     expect(result).toMatchObject({
       lineItemName: { match: MatchKey.PARTIAL },
       lineItemColor: { match: MatchKey.NO },
-      lineItemProductId: { match: MatchKey.NO },
+      lineItemProductId: { match: MatchKey.FULL },
       lineItemProductImageUrl: { match: MatchKey.NO },
       lineItemQuantity: { match: MatchKey.FULL },
       lineItemSize: { match: MatchKey.NO },

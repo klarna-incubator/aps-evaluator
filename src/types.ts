@@ -42,7 +42,7 @@ export type ComparisonInput = {
   trackingNumbers: string[] | null
 }
 
-export type ComparisonInputWithMultipleValues = Omit<
+export type ComparisonInputWithMultiPossibleValues = Omit<
   ComparisonInput,
   'lineItems' | 'merchantName'
 > & {

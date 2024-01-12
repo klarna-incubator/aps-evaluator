@@ -17,7 +17,7 @@ import {
   FieldResult,
   LineItem,
   LineItemFieldResults,
-  ComparisonInputWithMultipleValues,
+  ComparisonInputWithMultiPossibleValues,
 } from './types'
 
 type ComparisonResultWithoutAPS = Omit<ComparisonResult, 'APS'>
@@ -47,7 +47,7 @@ export const createMismatchComment = (
 export const evaluateField = (
   field: keyof ComparisonInput,
   parsed: ComparisonInput,
-  labeled: ComparisonInputWithMultipleValues,
+  labeled: ComparisonInputWithMultiPossibleValues,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   comparator: ComparisonFn<any>,
   comparatorOptions?: ComparisonOptions
@@ -122,7 +122,7 @@ export const evaluateArray = <T = unknown>(
 
 export const evaluateCostsAddUp = (
   parsed: ComparisonInput,
-  labeled: ComparisonInputWithMultipleValues
+  labeled: ComparisonInputWithMultiPossibleValues
 ): FieldResult => {
   const expectedTotal = labeled?.totalAmount
   if (!expectedTotal) return { match: null, comments: ['missing labeled total amount'] }
@@ -164,7 +164,7 @@ export const evaluateCostsAddUp = (
 
 export const evaluateLineItemCount = (
   parsed: ComparisonInput['lineItems'],
-  labeled: ComparisonInputWithMultipleValues['lineItems']
+  labeled: ComparisonInputWithMultiPossibleValues['lineItems']
 ): FieldResult => {
   if (!parsed && !labeled) {
     return {
@@ -188,7 +188,7 @@ export const evaluateLineItemCount = (
 
 export const evaluateLineItemFields = (
   parsed: ComparisonInput['lineItems'],
-  labeled: ComparisonInputWithMultipleValues['lineItems']
+  labeled: ComparisonInputWithMultiPossibleValues['lineItems']
 ): LineItemFieldResults => {
   const result: LineItemFieldResults = {
     lineItemName: { match: null },
@@ -227,7 +227,8 @@ export const evaluateLineItemFields = (
     },
     productId: {
       fieldName: 'lineItemProductId',
-      comparator: fullOrNoMatchComparison,
+      comparator: compareStrings,
+      comparatorOptions: { allowPartialMatch: false },
     },
     imageUrl: {
       fieldName: 'lineItemProductImageUrl',
@@ -319,7 +320,7 @@ export const compareWithLabeled = ({
   labeled,
 }: {
   parsed: ComparisonInput
-  labeled: ComparisonInputWithMultipleValues
+  labeled: ComparisonInputWithMultiPossibleValues
 }): ComparisonResult => {
   const fieldResults: ComparisonResultWithoutAPS = {
     status: evaluateField('status', parsed, labeled, compareOrderStatus),
